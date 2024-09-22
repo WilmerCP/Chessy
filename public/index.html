@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="shortcut icon" href="img/favicon.png" type="image/x-icon">
+</head>
+
+<body>
+
+    <header>
+
+        <img src="img/logo.svg" alt="Chessy logo" class="logo">
+        <h1 class="title">Chessy</h1>
+    
+    </header>
+
+    <section class="container">
+
+        <h3 class="slogan">Your next move starts here.</h3>
+
+        <div class="form_wrapper">
+
+            <h2>Find a game</h2>
+
+            <form action="/api/find-game" method="post" id="find_game">
+
+                <input type="text" name="name" id="name" placeholder="Enter your name">
+
+                <button type="submit" class="submit_button">Random match</button>
+                
+
+            </form>
+
+        </div>
+
+        <img src="./img/pieces.png" id="main_image">
+
+    </section>
+
+</body>
+
+</html>
