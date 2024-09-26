@@ -113,5 +113,191 @@ game.blackLongCastle = true;
 game.whiteShortCastle = true;
 game.blackShortCastle = true;
 
-
 console.log(JSON.stringify(game,null,2));
+
+
+let squares = Array.from(document.getElementsByClassName('recuadro'));
+
+squares.forEach(square => {
+    
+
+
+});
+
+let xOffSet;
+let yOffSet;
+game.currentSquare;
+game.currentPiece;
+
+let pieces = Array.from(document.getElementsByClassName('pieza'));
+
+//Drag and drop logic for computers
+
+pieces.forEach(piece =>{
+
+    function onMouseDown(e){
+
+        e.preventDefault();
+
+        //Getting the offset space between the mouse and the piece position
+        xOffSet = e.clientX - piece.getBoundingClientRect().left;
+        yOffSet = e.clientY - piece.getBoundingClientRect().top;
+
+
+        document.addEventListener('mousemove',onMouseMove);
+        document.addEventListener('mouseup',onMouseUp);
+
+        piece.style.cursor = "grabbing";
+        game.currentPiece = piece;
+        piece.style.zIndex = 4;
+    }
+
+    function onMouseMove(e){
+
+        let squareX = piece.parentElement.getBoundingClientRect().left;
+        let squareY = piece.parentElement.getBoundingClientRect().top;
+
+        piece.style.left = `${e.clientX - squareX - xOffSet}px`;
+        piece.style.top = `${e.clientY - squareY - yOffSet}px`;
+
+        squares.forEach( square =>{
+
+            let squareRect = square.getBoundingClientRect();
+
+            if(e.clientX >= squareRect.left && 
+                e.clientY >= squareRect.top && 
+                e.clientX <= squareRect.right && 
+                e.clientY <= squareRect.bottom ){
+
+                    square.classList.add('encima');
+
+                    game.currentSquare = square;
+
+            }else{
+
+                square.classList.remove('encima');
+
+            }
+
+
+        });
+
+
+    }
+
+    function onMouseUp(e){
+
+        document.removeEventListener('mousemove',onMouseMove);
+        document.removeEventListener('mouseup',onMouseUp);
+        piece.style.cursor = "grab";
+
+        game.currentSquare.classList.remove('encima');
+
+        let move = {
+
+            from: game.currentPiece.parentElement.classList[0],
+            to: game.currentSquare.classList[0]
+
+        }
+
+        piece.style.zIndex = 3;
+        game.makeMove(move);
+
+    }
+
+    piece.addEventListener('mousedown',onMouseDown);
+
+});
+
+//Drag and drop logic for mobile
+
+pieces.forEach(piece =>{
+
+    function onTouchStart(e){
+
+        e.preventDefault();
+
+        //Getting the offset space between the mouse and the piece position
+        xOffSet = e.touches[0].clientX - piece.getBoundingClientRect().left;
+        yOffSet = e.touches[0].clientY - piece.getBoundingClientRect().top;
+
+
+        document.addEventListener('touchmove',onTouchMove);
+        document.addEventListener('touchend',onTouchEnd);
+
+        piece.style.width = "100px";
+        game.currentPiece = piece;
+        piece.style.zIndex = 4;
+
+    }
+
+    function onTouchMove(e){
+
+        let squareX = piece.parentElement.getBoundingClientRect().left;
+        let squareY = piece.parentElement.getBoundingClientRect().top;
+
+        piece.style.left = `${e.touches[0].clientX - squareX - 70}px`;
+        piece.style.top = `${e.touches[0].clientY - squareY - 70}px`;
+
+        squares.forEach( square =>{
+
+            let squareRect = square.getBoundingClientRect();
+
+            if(e.touches[0].clientX >= squareRect.left && 
+                e.touches[0].clientY >= squareRect.top && 
+                e.touches[0].clientX <= squareRect.right && 
+                e.touches[0].clientY <= squareRect.bottom ){
+
+                    square.classList.add('encima');
+
+                    game.currentSquare = square;
+
+            }else{
+
+                square.classList.remove('encima');
+
+            }
+
+
+        });
+
+    }
+
+    function onTouchEnd(e){
+
+        document.removeEventListener('touchmove',onTouchMove);
+        document.removeEventListener('touchend',onTouchEnd);
+
+        piece.style.width = "100%";
+
+        game.currentSquare.classList.remove('encima');
+
+        let move = {
+
+            from: game.currentPiece.parentElement.classList[0],
+            to: game.currentSquare.classList[0]
+
+        }
+
+        piece.style.zIndex = 3;
+        game.makeMove(move);
+
+    }
+
+    piece.addEventListener('touchstart',onTouchStart);
+
+});
+
+
+game.makeMove = function(move){
+
+    let newSquare = document.getElementsByClassName(move.to)[0];
+
+    newSquare.appendChild(game.currentPiece);
+
+    game.currentPiece.style.top = '0px';
+    game.currentPiece.style.bottom = '0px';
+    game.currentPiece.style.left = '0px';
+    game.currentPiece.style.right = '0px';
+
+}

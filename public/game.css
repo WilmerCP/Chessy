@@ -7,6 +7,7 @@
     --button-color:rgb(150, 14, 14);
     --button-hover: rgb(187, 21, 21);
     --font: Arial, Helvetica, sans-serif;
+    --highlight: rgb(215, 224, 81);
 
 }
 
@@ -16,7 +17,6 @@
     margin: 0px;
     padding: 0px;
     box-sizing: border-box;
-    max-width: 100%;
 }
 
 #tablero_negras{
@@ -28,6 +28,7 @@
 body{
 
     background-color: var(--background);
+    overflow: hidden;
 
 }
 
@@ -774,7 +775,6 @@ button:hover{
     width: 100%;
     height: auto;
     cursor:grab;
-
 }
 
 .pieza:active{
@@ -785,7 +785,9 @@ button:hover{
 
 .pieza{
 
-    z-index: 1;
+    z-index: 3;
+
+    
 
 }
 
@@ -799,6 +801,7 @@ button:hover{
     left: 3px;
     font-weight: bold;
     font-family: var(--font);
+    z-index: 2;
 
 }
 
@@ -866,6 +869,7 @@ button:hover{
     right: 3px;
     font-weight: bold;
     font-family: var(--font);
+    z-index: 1;
 
 }
 
@@ -1039,6 +1043,17 @@ button:hover{
 
 }
 
+.encima{
+
+    background-color: var(--highlight);
+
+}
+
+.grabbing{
+
+    cursor: grabbing!important;
+
+}
 
 @media screen and (max-width: 1088px){
 
@@ -1103,7 +1118,7 @@ button:hover{
 
     .parent_tablero{
 
-        width: 95%;
+        width: 100%;
 
     }
 
@@ -1142,8 +1157,8 @@ button:hover{
 
     .container{
 
-        padding-left: 5%;
-        padding-right: 5%;
+        padding-left: 0px;
+        padding-right: 0px;
         row-gap: 10px;
 
     }

@@ -36,8 +36,6 @@ server.serverHttp = http.createServer((req,res)=>{
 
         }
 
-        console.log(datos.url.pathname);
-
         let selectedHandler = typeof(server.router[myUrl.pathname]) !== 'undefined' ? server.router[myUrl.pathname] : server.router.notFound;
 
         selectedHandler = datos.url.pathname.includes('public') ? server.router.public : selectedHandler;
