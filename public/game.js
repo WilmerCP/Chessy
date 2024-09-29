@@ -224,6 +224,12 @@ game.makeMove = function (move) {
 
     let newSquare = document.getElementsByClassName(move.to)[0];
 
+    if (newSquare.childElementCount > 0) {
+        
+        let target = newSquare.children[0];
+        newSquare.removeChild(target);
+    }
+
     let piece = document.getElementsByClassName(move.from)[0].firstChild;
 
     newSquare.appendChild(piece);
@@ -234,6 +240,12 @@ game.makeMove = function (move) {
     piece.style.right = '0px';
 
     let otherSquare = document.getElementsByClassName(move.to)[1];
+
+    if (otherSquare.childElementCount > 0) {
+        
+        let target = otherSquare.children[0];
+        otherSquare.removeChild(target);
+    }
 
     let otherPiece = document.getElementsByClassName(move.from)[1].firstChild;
 
@@ -263,7 +275,7 @@ game.validateMove = function (move) {
 
 game.socket.on('moveAccepted', (move) => {
 
-    console.log('event was triggered');
+    console.log('move event was triggered');
 
     game.makeMove(move);
 
