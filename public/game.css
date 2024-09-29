@@ -19,7 +19,7 @@
     box-sizing: border-box;
 }
 
-#tablero_negras{
+.hide{
 
     display: none!important;
 

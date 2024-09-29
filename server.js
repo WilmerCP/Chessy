@@ -2,6 +2,8 @@ const http = require('http');
 const { StringDecoder } = require('string_decoder');
 const handlers = require('./lib/handlers');
 const helpers = require('./lib/helpers');
+const { Server } = require('socket.io');
+const socketLogic = require('./lib/sockets');
 
 let server = {}
 
@@ -116,12 +118,17 @@ server.router = {
     'public': handlers.public,
     'img': handlers.img,
     '/favicon.ico':handlers.favicon,
-    '/game': handlers.game
+    '/game': handlers.game,
+    '/api/newgame': handlers.newGame
 
 }
+
+server.io = new Server(server.serverHttp);
 
 server.serverHttp.listen(3000,()=>{
 
     console.log('\x1b[34m%s\x1b[0m','The server is listening on port 3000');
 
 });
+
+socketLogic.init(server.io);

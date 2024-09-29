@@ -1,125 +1,40 @@
-let game = {
+let game = {}
+
+game.started = false;
+
+game.socket = io('/');
+
+let username = localStorage.getItem('username');
+
+if (typeof (username) == 'string') {
+
+    document.getElementById('user_name').innerHTML = username;
+
+    game.socket.emit('findgame', { 'name': username })
 
 }
 
-game.squares = []
+game.socket.on('startGame', (data) => {
 
-for (let i = 0; i < 8; i++) {
-    
-    game.squares[i] = []
-    
-}
+    game.started = true;
 
-let pb = 1;
-let pn = 1;
+    document.getElementById('opponent_name').innerHTML = data.opponent;
 
-for (let i = 0; i < 8; i++) {
-    
-    for (let j = 0; j < 8; j++) {
-    
-        if(j == 1){ // Fila 2
+    if (data.color == 'black') {
 
-            game.squares[i][j] = "peonblanco"+pb;
-            pb++;
+        document.getElementById('tablero_blancas').classList.add('hide');
+        document.getElementById('tablero_negras').classList.remove('hide');
 
-        }else if(j == 6){ // Fila 7
-
-            game.squares[i][j] = "peonnegro"+pn;
-            pn++;
-
-        }else if(j == 0){ //Fila 1
-
-            if(i == 0 || i == 7){
-
-                game.squares[i][j] = "torreblanca";
-
-            }
-
-            if(i == 1 || i == 6){
-
-                game.squares[i][j] = "caballoblanco";
-
-            }
-
-            if(i == 2 || i == 5){
-
-                game.squares[i][j] = "afilblanco";
-
-            }
-
-            if(i == 3){
-
-                game.squares[i][j] = "reinablanca";
-
-            }
-
-            if(i == 4){
-
-                game.squares[i][j] = "reyblanco";
-
-            }
-
-        }else if(j == 7){ //Fila 8
-
-            if(i == 0 || i == 7){
-
-                game.squares[i][j] = "torrenegra";
-
-            }
-
-            if(i == 1 || i == 6){
-
-                game.squares[i][j] = "caballonegro";
-
-            }
-
-            if(i == 2 || i == 5){
-
-                game.squares[i][j] = "afilnegro";
-
-            }
-
-            if(i == 3){
-
-                game.squares[i][j] = "reinanegra";
-
-            }
-
-            if(i == 4){
-
-                game.squares[i][j] = "reynegro";
-
-            }
-
-        }else{
-
-            game.squares[i][j] = "vacio";
-
-        }
-        
     }
-    
-}
 
-game.jumpRightWhite = [true,true,true,true,true,true,true,true];
-game.jumpRightBlack = [true,true,true,true,true,true,true,true];
-game.enPassantWhite = [false,false,false,false,false,false,false,false];
-game.enPassantBlack = [false,false,false,false,false,false,false,false];
+    game.activateBoard();
 
-game.whiteInCheck = false;
-game.blackInCheck = false;
-game.whiteLongCastle = true;
-game.blackLongCastle = true;
-game.whiteShortCastle = true;
-game.blackShortCastle = true;
-
-console.log(JSON.stringify(game,null,2));
-
+});
 
 let squares = Array.from(document.getElementsByClassName('recuadro'));
 
 squares.forEach(square => {
-    
+
 
 
 });
@@ -131,173 +46,225 @@ game.currentPiece;
 
 let pieces = Array.from(document.getElementsByClassName('pieza'));
 
-//Drag and drop logic for computers
+game.activateBoard = function () {
 
-pieces.forEach(piece =>{
+    //Drag and drop logic for computers
 
-    function onMouseDown(e){
+    pieces.forEach(piece => {
 
-        e.preventDefault();
+        function onMouseDown(e) {
 
-        //Getting the offset space between the mouse and the piece position
-        xOffSet = e.clientX - piece.getBoundingClientRect().left;
-        yOffSet = e.clientY - piece.getBoundingClientRect().top;
+            e.preventDefault();
+
+            //Getting the offset space between the mouse and the piece position
+            xOffSet = e.clientX - piece.getBoundingClientRect().left;
+            yOffSet = e.clientY - piece.getBoundingClientRect().top;
 
 
-        document.addEventListener('mousemove',onMouseMove);
-        document.addEventListener('mouseup',onMouseUp);
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
 
-        piece.style.cursor = "grabbing";
-        game.currentPiece = piece;
-        piece.style.zIndex = 4;
-    }
+            piece.style.cursor = "grabbing";
+            game.currentPiece = piece;
+            piece.style.zIndex = 4;
+        }
 
-    function onMouseMove(e){
+        function onMouseMove(e) {
 
-        let squareX = piece.parentElement.getBoundingClientRect().left;
-        let squareY = piece.parentElement.getBoundingClientRect().top;
+            let squareX = piece.parentElement.getBoundingClientRect().left;
+            let squareY = piece.parentElement.getBoundingClientRect().top;
 
-        piece.style.left = `${e.clientX - squareX - xOffSet}px`;
-        piece.style.top = `${e.clientY - squareY - yOffSet}px`;
+            piece.style.left = `${e.clientX - squareX - xOffSet}px`;
+            piece.style.top = `${e.clientY - squareY - yOffSet}px`;
 
-        squares.forEach( square =>{
+            squares.forEach(square => {
 
-            let squareRect = square.getBoundingClientRect();
+                let squareRect = square.getBoundingClientRect();
 
-            if(e.clientX >= squareRect.left && 
-                e.clientY >= squareRect.top && 
-                e.clientX <= squareRect.right && 
-                e.clientY <= squareRect.bottom ){
+                if (e.clientX >= squareRect.left &&
+                    e.clientY >= squareRect.top &&
+                    e.clientX <= squareRect.right &&
+                    e.clientY <= squareRect.bottom) {
 
                     square.classList.add('encima');
 
                     game.currentSquare = square;
 
-            }else{
+                } else {
 
-                square.classList.remove('encima');
+                    square.classList.remove('encima');
 
-            }
-
-
-        });
+                }
 
 
-    }
+            });
 
-    function onMouseUp(e){
-
-        document.removeEventListener('mousemove',onMouseMove);
-        document.removeEventListener('mouseup',onMouseUp);
-        piece.style.cursor = "grab";
-
-        game.currentSquare.classList.remove('encima');
-
-        let move = {
-
-            from: game.currentPiece.parentElement.classList[0],
-            to: game.currentSquare.classList[0]
 
         }
 
-        piece.style.zIndex = 3;
-        game.makeMove(move);
+        function onMouseUp(e) {
 
-    }
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+            piece.style.cursor = "grab";
 
-    piece.addEventListener('mousedown',onMouseDown);
+            game.currentSquare.classList.remove('encima');
 
-});
+            let move = {
 
-//Drag and drop logic for mobile
+                from: game.currentPiece.parentElement.classList[0],
+                to: game.currentSquare.classList[0]
 
-pieces.forEach(piece =>{
+            }
 
-    function onTouchStart(e){
+            piece.style.zIndex = 3;
+            game.resetPiece(piece);
 
-        e.preventDefault();
+            if (move.to !== move.from) {
 
-        //Getting the offset space between the mouse and the piece position
-        xOffSet = e.touches[0].clientX - piece.getBoundingClientRect().left;
-        yOffSet = e.touches[0].clientY - piece.getBoundingClientRect().top;
+                game.validateMove(move);
+
+            }
+
+        }
+
+        piece.addEventListener('mousedown', onMouseDown);
+
+    });
+
+    //Drag and drop logic for mobile
+
+    pieces.forEach(piece => {
+
+        function onTouchStart(e) {
+
+            e.preventDefault();
+
+            //Getting the offset space between the mouse and the piece position
+            xOffSet = e.touches[0].clientX - piece.getBoundingClientRect().left;
+            yOffSet = e.touches[0].clientY - piece.getBoundingClientRect().top;
 
 
-        document.addEventListener('touchmove',onTouchMove);
-        document.addEventListener('touchend',onTouchEnd);
+            document.addEventListener('touchmove', onTouchMove);
+            document.addEventListener('touchend', onTouchEnd);
 
-        piece.style.width = "100px";
-        game.currentPiece = piece;
-        piece.style.zIndex = 4;
+            piece.style.width = "100px";
+            game.currentPiece = piece;
+            piece.style.zIndex = 4;
 
-    }
+        }
 
-    function onTouchMove(e){
+        function onTouchMove(e) {
 
-        let squareX = piece.parentElement.getBoundingClientRect().left;
-        let squareY = piece.parentElement.getBoundingClientRect().top;
+            let squareX = piece.parentElement.getBoundingClientRect().left;
+            let squareY = piece.parentElement.getBoundingClientRect().top;
 
-        piece.style.left = `${e.touches[0].clientX - squareX - 70}px`;
-        piece.style.top = `${e.touches[0].clientY - squareY - 70}px`;
+            piece.style.left = `${e.touches[0].clientX - squareX - 70}px`;
+            piece.style.top = `${e.touches[0].clientY - squareY - 70}px`;
 
-        squares.forEach( square =>{
+            squares.forEach(square => {
 
-            let squareRect = square.getBoundingClientRect();
+                let squareRect = square.getBoundingClientRect();
 
-            if(e.touches[0].clientX >= squareRect.left && 
-                e.touches[0].clientY >= squareRect.top && 
-                e.touches[0].clientX <= squareRect.right && 
-                e.touches[0].clientY <= squareRect.bottom ){
+                if (e.touches[0].clientX >= squareRect.left &&
+                    e.touches[0].clientY >= squareRect.top &&
+                    e.touches[0].clientX <= squareRect.right &&
+                    e.touches[0].clientY <= squareRect.bottom) {
 
                     square.classList.add('encima');
 
                     game.currentSquare = square;
 
-            }else{
+                } else {
 
-                square.classList.remove('encima');
+                    square.classList.remove('encima');
 
-            }
+                }
 
 
-        });
-
-    }
-
-    function onTouchEnd(e){
-
-        document.removeEventListener('touchmove',onTouchMove);
-        document.removeEventListener('touchend',onTouchEnd);
-
-        piece.style.width = "100%";
-
-        game.currentSquare.classList.remove('encima');
-
-        let move = {
-
-            from: game.currentPiece.parentElement.classList[0],
-            to: game.currentSquare.classList[0]
+            });
 
         }
 
-        piece.style.zIndex = 3;
-        game.makeMove(move);
+        function onTouchEnd(e) {
 
-    }
+            document.removeEventListener('touchmove', onTouchMove);
+            document.removeEventListener('touchend', onTouchEnd);
 
-    piece.addEventListener('touchstart',onTouchStart);
+            piece.style.width = "100%";
 
-});
+            game.currentSquare.classList.remove('encima');
+
+            let move = {
+
+                from: game.currentPiece.parentElement.classList[0],
+                to: game.currentSquare.classList[0]
+
+            }
+
+            piece.style.zIndex = 3;
+            game.resetPiece(piece);
+
+            if (move.to !== move.from) {
+
+                game.validateMove(move);
+
+            }
+
+        }
+
+        piece.addEventListener('touchstart', onTouchStart);
+
+    });
+
+}
 
 
-game.makeMove = function(move){
+game.makeMove = function (move) {
 
     let newSquare = document.getElementsByClassName(move.to)[0];
 
-    newSquare.appendChild(game.currentPiece);
+    let piece = document.getElementsByClassName(move.from)[0].firstChild;
 
-    game.currentPiece.style.top = '0px';
-    game.currentPiece.style.bottom = '0px';
-    game.currentPiece.style.left = '0px';
-    game.currentPiece.style.right = '0px';
+    newSquare.appendChild(piece);
+
+    piece.style.top = '0px';
+    piece.style.bottom = '0px';
+    piece.style.left = '0px';
+    piece.style.right = '0px';
+
+    let otherSquare = document.getElementsByClassName(move.to)[1];
+
+    let otherPiece = document.getElementsByClassName(move.from)[1].firstChild;
+
+    otherSquare.appendChild(otherPiece);
+
+    otherPiece.style.top = '0px';
+    otherPiece.style.bottom = '0px';
+    otherPiece.style.left = '0px';
+    otherPiece.style.right = '0px';
 
 }
+
+game.resetPiece = function (piece) {
+
+    piece.style.top = '0px';
+    piece.style.bottom = '0px';
+    piece.style.left = '0px';
+    piece.style.right = '0px';
+
+}
+
+game.validateMove = function (move) {
+
+    game.socket.emit('move', move);
+
+}
+
+game.socket.on('moveAccepted', (move) => {
+
+    console.log('event was triggered');
+
+    game.makeMove(move);
+
+});
