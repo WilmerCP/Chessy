@@ -1,3 +1,12 @@
+let logo = document.getElementById('apptitle');
+
+logo.addEventListener('click',(e)=>{
+
+    window.location.href = '/';
+
+});
+
+
 let playButton = document.getElementById('random_match_button');
 
 playButton.addEventListener('click',(e)=>{

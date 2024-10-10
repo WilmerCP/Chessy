@@ -2,6 +2,16 @@ let game = {}
 
 game.started = false;
 
+let logo = document.getElementById('apptitle');
+logo.style.cursor = "pointer";
+
+logo.addEventListener('click',(e)=>{
+
+    window.location.href = '/';
+
+});
+
+
 game.socket = io('/');
 
 let username = localStorage.getItem('username');
@@ -26,6 +36,8 @@ game.socket.on('startGame', (data) => {
         document.getElementById('tablero_negras').classList.remove('hide');
 
     }
+
+    game.color = data.color;
 
     game.activateBoard();
 
@@ -275,8 +287,62 @@ game.validateMove = function (move) {
 
 game.socket.on('moveAccepted', (move) => {
 
-    console.log('move event was triggered');
-
     game.makeMove(move);
 
 });
+
+game.socket.on('gameover', (details) => {
+
+    let popup = document.getElementById('overlay');
+    popup.style.display = 'flex';
+
+    let closeButton = document.getElementById('close');
+    let newMatchButton = document.getElementById('newmatch');
+
+    closeButton.addEventListener('click',(e)=>{
+
+        popup.style.display = 'none';
+
+    });
+
+    newMatchButton.addEventListener('click',(e)=>{
+
+        location.reload();
+
+    });
+
+    let title = document.getElementById('wintitle');
+
+    if(details.winner == game.color){
+
+        title.innerHTML = 'You win!';
+
+    }else{
+
+        title.innerHTML = 'You lose!';
+
+    }
+
+    let reason = document.getElementById('winreason');
+
+    if(details.reason == 'checkmate'){
+
+        reason.innerHTML = 'By checkmate';
+
+    }
+
+    game.deactivateBoard();
+
+});
+
+game.deactivateBoard = function(){
+
+    pieces.forEach(piece => {
+
+        const newPiece = piece.cloneNode(true); // Clone without event listeners
+        piece.parentNode.replaceChild(newPiece, piece);
+
+    });
+
+
+}
