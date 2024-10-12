@@ -291,6 +291,27 @@ game.socket.on('moveAccepted', (move) => {
 
 });
 
+game.socket.on('enPassant', (details)=>{
+
+    let square = document.getElementsByClassName(details.square)[0];
+
+    if (square.childElementCount > 0) {
+        
+        let target = square.children[0];
+        square.removeChild(target);
+    }
+
+    let otherSquare = document.getElementsByClassName(details.square)[1];
+
+    if (otherSquare.childElementCount > 0) {
+        
+        let target = otherSquare.children[0];
+        otherSquare.removeChild(target);
+    }
+
+
+});
+
 game.socket.on('gameover', (details) => {
 
     let popup = document.getElementById('overlay');
