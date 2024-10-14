@@ -312,6 +312,43 @@ game.socket.on('enPassant', (details)=>{
 
 });
 
+game.socket.on('castle', (details)=>{
+
+    if(details.square == 'h1'){
+        //white short castle
+
+        game.makeMove({from: 'e1', to: 'g1'});
+        game.makeMove({from: 'h1', to: 'f1'});
+
+    }
+
+    if(details.square == 'a1'){
+        //white long castle
+        
+        game.makeMove({from: 'e1', to: 'c1'});
+        game.makeMove({from: 'a1', to: 'd1'});
+
+    }
+
+    if(details.square == 'h8'){
+        //black short castle
+
+        game.makeMove({from: 'e8', to: 'g8'});
+        game.makeMove({from: 'h8', to: 'f8'});
+
+    }
+
+    if(details.square == 'a8'){
+        //white long castle
+        
+        game.makeMove({from: 'e8', to: 'c8'});
+        game.makeMove({from: 'a8', to: 'd8'});
+
+    }
+
+
+});
+
 game.socket.on('gameover', (details) => {
 
     let popup = document.getElementById('overlay');
