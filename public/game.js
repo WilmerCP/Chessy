@@ -5,6 +5,9 @@ game.started = false;
 let logo = document.getElementById('apptitle');
 logo.style.cursor = "pointer";
 
+game.promotionWhite = document.getElementById('promotionWhite');
+game.promotionBlack = document.getElementById('promotionBlack');
+
 logo.addEventListener('click',(e)=>{
 
     window.location.href = '/';
@@ -242,7 +245,7 @@ game.makeMove = function (move) {
         newSquare.removeChild(target);
     }
 
-    let piece = document.getElementsByClassName(move.from)[0].firstChild;
+    let piece = document.getElementsByClassName(move.from)[0].firstElementChild;
 
     newSquare.appendChild(piece);
 
@@ -259,7 +262,7 @@ game.makeMove = function (move) {
         otherSquare.removeChild(target);
     }
 
-    let otherPiece = document.getElementsByClassName(move.from)[1].firstChild;
+    let otherPiece = document.getElementsByClassName(move.from)[1].firstElementChild;
 
     otherSquare.appendChild(otherPiece);
 
@@ -281,13 +284,167 @@ game.resetPiece = function (piece) {
 
 game.validateMove = function (move) {
 
-    game.socket.emit('move', move);
+    let pieceName = game.currentPiece.classList[1];
+    let square = game.currentSquare;
+    let squareName = square.classList[0];
+
+    if(pieceName.includes('peonblanco') && squareName.includes('8') && game.color == 'white'){
+
+        const targetPosition = square.getBoundingClientRect();
+        game.promotionWhite.style.display = 'block';
+        const popup = game.promotionWhite.firstElementChild;
+        popup.style.top = `${targetPosition.top}px`;
+        popup.style.left = `${targetPosition.left}px`;
+
+        let promotionClickHandler = function(e){
+
+            e.target.style.display = 'none';
+            game.promotionWhite.removeEventListener('click',promotionClickHandler);
+    
+        }
+
+        game.promotionWhite.addEventListener('click',promotionClickHandler);
+
+        Array.from(popup.children).forEach(child => {
+
+            let promotionSelectHandler = function(e){
+
+                e.stopPropagation();
+
+                let name = child.classList[0];
+                move.promotion = name;
+                game.socket.emit('move', move);
+
+                e.target.parentElement.parentElement.style.display = 'none';
+    
+                e.target.removeEventListener('click',promotionSelectHandler);
+    
+            }
+            
+            child.addEventListener('click',promotionSelectHandler);
+
+        });
+
+    }else if(pieceName.includes('peonnegro') && squareName.includes('1') && game.color == 'black'){
+
+        const targetPosition = square.getBoundingClientRect();
+        game.promotionBlack.style.display = 'block';
+        const popup = game.promotionBlack.firstElementChild;
+        popup.style.top = `${targetPosition.top}px`;
+        popup.style.left = `${targetPosition.left}px`;
+
+        let promotionClickHandler = function(e){
+
+            e.target.style.display = 'none';
+            game.promotionBlack.removeEventListener('click',promotionClickHandler);
+    
+        }
+
+        game.promotionBlack.addEventListener('click',promotionClickHandler);
+
+        Array.from(popup.children).forEach(child => {
+
+            let promotionSelectHandler = function(e){
+
+                e.stopPropagation();
+
+                let name = child.classList[0];
+                move.promotion = name;
+
+                console.log(move);
+
+                game.socket.emit('move', move);
+
+                e.target.parentElement.parentElement.style.display = 'none';
+    
+                e.target.removeEventListener('click',promotionSelectHandler);
+    
+            }
+            
+            child.addEventListener('click',promotionSelectHandler);
+
+        });
+
+    }else{
+
+        game.socket.emit('move', move);
+
+    }
 
 }
 
 game.socket.on('moveAccepted', (move) => {
 
+    console.log('move accepted');
+    console.log(move);
+
     game.makeMove(move);
+
+});
+
+game.getImgName = function(piece){
+
+    let text = "public/img/"
+
+    if(piece.includes('negr')){
+
+        text = text + 'b';
+
+    }else{
+
+        text = text + 'w';
+
+    }
+
+    if(piece.includes('afil')){
+
+        text = text + 'B';
+
+    }
+
+    if(piece.includes('reina')){
+
+        text = text + 'Q';
+
+    }
+
+    if(piece.includes('torre')){
+
+        text = text + 'R';
+
+    }
+
+    if(piece.includes('caballo')){
+
+        text = text + 'N';
+
+    }
+
+    text = text + '.svg';
+
+    return text;
+
+}
+
+game.socket.on('promotion', (details) => {
+
+    let square = document.getElementsByClassName(details.square)[0];
+    if (square.childElementCount > 0) {
+        
+        let target = square.children[0];
+        target.className = 'pieza '+details.piece;
+        target.src = game.getImgName(details.piece);
+        game.currentSquare = false;
+    }
+
+    let otherSquare = document.getElementsByClassName(details.square)[1];
+    if (otherSquare.childElementCount > 0) {
+        
+        let target = otherSquare.children[0];
+        target.className = 'pieza '+details.piece;
+        target.src = game.getImgName(details.piece);
+        game.currentPiece = false;
+    }
 
 });
 
