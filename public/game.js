@@ -298,28 +298,37 @@ game.validateMove = function (move) {
 
         let promotionClickHandler = function(e){
 
-            e.target.style.display = 'none';
+            game.promotionWhite.style.display = 'none';
             game.promotionWhite.removeEventListener('click',promotionClickHandler);
+            popup.removeEventListener('click',promotionClickHandler);
+
+            Array.from(popup.children).forEach(child => {
+            
+                child.removeEventListener('click',promotionSelectHandler);
+    
+            });
     
         }
 
+        let promotionSelectHandler = function(e){
+
+            e.stopPropagation();
+
+            let name = e.target.classList[0];
+            move.promotion = name;
+            game.socket.emit('move', move);
+            console.log(move);
+
+            e.target.parentElement.parentElement.style.display = 'none';
+
+            e.target.removeEventListener('click',promotionSelectHandler);
+
+        }
+
         game.promotionWhite.addEventListener('click',promotionClickHandler);
+        popup.addEventListener('click',promotionClickHandler);
 
         Array.from(popup.children).forEach(child => {
-
-            let promotionSelectHandler = function(e){
-
-                e.stopPropagation();
-
-                let name = child.classList[0];
-                move.promotion = name;
-                game.socket.emit('move', move);
-
-                e.target.parentElement.parentElement.style.display = 'none';
-    
-                e.target.removeEventListener('click',promotionSelectHandler);
-    
-            }
             
             child.addEventListener('click',promotionSelectHandler);
 
@@ -335,31 +344,37 @@ game.validateMove = function (move) {
 
         let promotionClickHandler = function(e){
 
-            e.target.style.display = 'none';
+            game.promotionBlack.style.display = 'none';
             game.promotionBlack.removeEventListener('click',promotionClickHandler);
+            popup.removeEventListener('click',promotionClickHandler);
+
+            Array.from(popup.children).forEach(child => {
+            
+                child.removeEventListener('click',promotionSelectHandler);
+    
+            });
     
         }
 
+        let promotionSelectHandler = function(e){
+
+            e.stopPropagation();
+
+            let name = e.target.classList[0];
+            move.promotion = name;
+
+            game.socket.emit('move', move);
+
+            e.target.parentElement.parentElement.style.display = 'none';
+
+            e.target.removeEventListener('click',promotionSelectHandler);
+
+        }
+
         game.promotionBlack.addEventListener('click',promotionClickHandler);
+        popup.addEventListener('click',promotionClickHandler);
 
         Array.from(popup.children).forEach(child => {
-
-            let promotionSelectHandler = function(e){
-
-                e.stopPropagation();
-
-                let name = child.classList[0];
-                move.promotion = name;
-
-                console.log(move);
-
-                game.socket.emit('move', move);
-
-                e.target.parentElement.parentElement.style.display = 'none';
-    
-                e.target.removeEventListener('click',promotionSelectHandler);
-    
-            }
             
             child.addEventListener('click',promotionSelectHandler);
 
@@ -374,9 +389,6 @@ game.validateMove = function (move) {
 }
 
 game.socket.on('moveAccepted', (move) => {
-
-    console.log('move accepted');
-    console.log(move);
 
     game.makeMove(move);
 
