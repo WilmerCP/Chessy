@@ -562,6 +562,38 @@ game.socket.on('gameover', (details) => {
 
 });
 
+game.socket.on('draw', (details) => {
+
+    let popup = document.getElementById('overlay');
+    popup.style.display = 'flex';
+
+    let closeButton = document.getElementById('close');
+    let newMatchButton = document.getElementById('newmatch');
+
+    closeButton.addEventListener('click',(e)=>{
+
+        popup.style.display = 'none';
+
+    });
+
+    newMatchButton.addEventListener('click',(e)=>{
+
+        location.reload();
+
+    });
+
+    let title = document.getElementById('wintitle');
+
+    title.innerHTML = "It's a draw"
+
+    let reason = document.getElementById('winreason');
+
+    reason.innerHTML = 'By' + details.reason;
+
+    game.deactivateBoard();
+
+});
+
 game.deactivateBoard = function(){
 
     pieces.forEach(piece => {
