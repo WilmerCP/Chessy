@@ -588,7 +588,7 @@ game.socket.on('draw', (details) => {
 
     let reason = document.getElementById('winreason');
 
-    reason.innerHTML = 'By' + details.reason;
+    reason.innerHTML = 'By ' + details.reason;
 
     game.deactivateBoard();
 
