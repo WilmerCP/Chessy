@@ -8,7 +8,7 @@ logo.style.cursor = "pointer";
 game.promotionWhite = document.getElementById('promotionWhite');
 game.promotionBlack = document.getElementById('promotionBlack');
 
-logo.addEventListener('click',(e)=>{
+logo.addEventListener('click', (e) => {
 
     window.location.href = '/';
 
@@ -27,6 +27,9 @@ if (typeof (username) == 'string') {
 
 }
 
+game.drawButton = document.getElementById('draw');
+game.resignButton = document.getElementById('resign');
+
 game.socket.on('startGame', (data) => {
 
     game.started = true;
@@ -44,7 +47,95 @@ game.socket.on('startGame', (data) => {
 
     game.activateBoard();
 
+    game.drawButton.addEventListener('click', bringDrawConfirmation);
+    game.resignButton.addEventListener('click', bringResignConfirmation);
+
+
 });
+
+function bringResignConfirmation(e) {
+
+    let bubble = document.getElementById('confirmResignation');
+    bubble.style.display = "inline-block";
+
+    const closeButton = document.getElementById('cancelResign');
+
+    const outsideClickListener = function (event) {
+        if (!bubble.contains(event.target)) {
+            closePopup();
+        }
+    };
+
+    function closePopup() {
+        bubble.style.display = "none";
+        document.removeEventListener('click', outsideClickListener);
+        closeButton.removeEventListener('click', outsideClickListener);
+    }
+
+    document.addEventListener('click', outsideClickListener);
+    
+    closeButton.addEventListener('click', closePopup);
+
+    const confirmResignButton = document.getElementById('confirmResign');
+
+    confirmResignButton.addEventListener('click',resign);
+
+    function resign(){
+
+        game.socket.emit('resign');
+        confirmResignButton.removeEventListener('click',resign);
+
+        closePopup();
+
+    }
+
+
+    // Prevent the outside click listener from triggering immediately when opening the popup
+    e.stopPropagation();
+
+}
+
+function bringDrawConfirmation(e) {
+
+    let bubble = document.getElementById('confirmDraw');
+    bubble.style.display = "inline-block";
+
+    const closeButton = document.getElementById('dismissDraw');
+
+    const outsideClickListener = function (event) {
+        if (!bubble.contains(event.target)) {
+            closePopup();
+        }
+    };
+
+    function closePopup() {
+        bubble.style.display = "none";
+        document.removeEventListener('click', outsideClickListener);
+        closeButton.removeEventListener('click', outsideClickListener);
+    }
+
+    document.addEventListener('click', outsideClickListener);
+    
+    closeButton.addEventListener('click', closePopup);
+
+    const offerDrawButton = document.getElementById('offerDraw');
+
+    offerDrawButton.addEventListener('click',emitDraw);
+
+    function emitDraw(){
+
+        game.socket.emit('drawRequest');
+        offerDrawButton.removeEventListener('click',emitDraw);
+
+        closePopup();
+
+    }
+
+
+    // Prevent the outside click listener from triggering immediately when opening the popup
+    e.stopPropagation();
+
+}
 
 let squares = Array.from(document.getElementsByClassName('recuadro'));
 
@@ -240,7 +331,7 @@ game.makeMove = function (move) {
     let newSquare = document.getElementsByClassName(move.to)[0];
 
     if (newSquare.childElementCount > 0) {
-        
+
         let target = newSquare.children[0];
         newSquare.removeChild(target);
     }
@@ -257,7 +348,7 @@ game.makeMove = function (move) {
     let otherSquare = document.getElementsByClassName(move.to)[1];
 
     if (otherSquare.childElementCount > 0) {
-        
+
         let target = otherSquare.children[0];
         otherSquare.removeChild(target);
     }
@@ -288,7 +379,7 @@ game.validateMove = function (move) {
     let square = game.currentSquare;
     let squareName = square.classList[0];
 
-    if(pieceName.includes('peonblanco') && squareName.includes('8') && game.color == 'white'){
+    if (pieceName.includes('peonblanco') && squareName.includes('8') && game.color == 'white') {
 
         const targetPosition = square.getBoundingClientRect();
         game.promotionWhite.style.display = 'block';
@@ -296,21 +387,21 @@ game.validateMove = function (move) {
         popup.style.top = `${targetPosition.top}px`;
         popup.style.left = `${targetPosition.left}px`;
 
-        let promotionClickHandler = function(e){
+        let promotionClickHandler = function (e) {
 
             game.promotionWhite.style.display = 'none';
-            game.promotionWhite.removeEventListener('click',promotionClickHandler);
-            popup.removeEventListener('click',promotionClickHandler);
+            game.promotionWhite.removeEventListener('click', promotionClickHandler);
+            popup.removeEventListener('click', promotionClickHandler);
 
             Array.from(popup.children).forEach(child => {
-            
-                child.removeEventListener('click',promotionSelectHandler);
-    
+
+                child.removeEventListener('click', promotionSelectHandler);
+
             });
-    
+
         }
 
-        let promotionSelectHandler = function(e){
+        let promotionSelectHandler = function (e) {
 
             e.stopPropagation();
 
@@ -321,20 +412,20 @@ game.validateMove = function (move) {
 
             e.target.parentElement.parentElement.style.display = 'none';
 
-            e.target.removeEventListener('click',promotionSelectHandler);
+            e.target.removeEventListener('click', promotionSelectHandler);
 
         }
 
-        game.promotionWhite.addEventListener('click',promotionClickHandler);
-        popup.addEventListener('click',promotionClickHandler);
+        game.promotionWhite.addEventListener('click', promotionClickHandler);
+        popup.addEventListener('click', promotionClickHandler);
 
         Array.from(popup.children).forEach(child => {
-            
-            child.addEventListener('click',promotionSelectHandler);
+
+            child.addEventListener('click', promotionSelectHandler);
 
         });
 
-    }else if(pieceName.includes('peonnegro') && squareName.includes('1') && game.color == 'black'){
+    } else if (pieceName.includes('peonnegro') && squareName.includes('1') && game.color == 'black') {
 
         const targetPosition = square.getBoundingClientRect();
         game.promotionBlack.style.display = 'block';
@@ -342,21 +433,21 @@ game.validateMove = function (move) {
         popup.style.top = `${targetPosition.top}px`;
         popup.style.left = `${targetPosition.left}px`;
 
-        let promotionClickHandler = function(e){
+        let promotionClickHandler = function (e) {
 
             game.promotionBlack.style.display = 'none';
-            game.promotionBlack.removeEventListener('click',promotionClickHandler);
-            popup.removeEventListener('click',promotionClickHandler);
+            game.promotionBlack.removeEventListener('click', promotionClickHandler);
+            popup.removeEventListener('click', promotionClickHandler);
 
             Array.from(popup.children).forEach(child => {
-            
-                child.removeEventListener('click',promotionSelectHandler);
-    
+
+                child.removeEventListener('click', promotionSelectHandler);
+
             });
-    
+
         }
 
-        let promotionSelectHandler = function(e){
+        let promotionSelectHandler = function (e) {
 
             e.stopPropagation();
 
@@ -367,20 +458,20 @@ game.validateMove = function (move) {
 
             e.target.parentElement.parentElement.style.display = 'none';
 
-            e.target.removeEventListener('click',promotionSelectHandler);
+            e.target.removeEventListener('click', promotionSelectHandler);
 
         }
 
-        game.promotionBlack.addEventListener('click',promotionClickHandler);
-        popup.addEventListener('click',promotionClickHandler);
+        game.promotionBlack.addEventListener('click', promotionClickHandler);
+        popup.addEventListener('click', promotionClickHandler);
 
         Array.from(popup.children).forEach(child => {
-            
-            child.addEventListener('click',promotionSelectHandler);
+
+            child.addEventListener('click', promotionSelectHandler);
 
         });
 
-    }else{
+    } else {
 
         game.socket.emit('move', move);
 
@@ -392,41 +483,55 @@ game.socket.on('moveAccepted', (move) => {
 
     game.makeMove(move);
 
+    const acceptDrawButton = document.getElementById('draw');
+
+    acceptDrawButton.classList.remove('acceptDraw');
+
+    acceptDrawButton.innerHTML = 'Draw';
+
+    const bubble = document.getElementById('confirmDraw');
+
+    const text = bubble.firstElementChild;
+
+    text.innerHTML = 'Offer a draw to you opponent?';
+
+    bubble.style.display = "none";
+
 });
 
-game.getImgName = function(piece){
+game.getImgName = function (piece) {
 
     let text = "public/img/"
 
-    if(piece.includes('negr')){
+    if (piece.includes('negr')) {
 
         text = text + 'b';
 
-    }else{
+    } else {
 
         text = text + 'w';
 
     }
 
-    if(piece.includes('afil')){
+    if (piece.includes('afil')) {
 
         text = text + 'B';
 
     }
 
-    if(piece.includes('reina')){
+    if (piece.includes('reina')) {
 
         text = text + 'Q';
 
     }
 
-    if(piece.includes('torre')){
+    if (piece.includes('torre')) {
 
         text = text + 'R';
 
     }
 
-    if(piece.includes('caballo')){
+    if (piece.includes('caballo')) {
 
         text = text + 'N';
 
@@ -442,30 +547,30 @@ game.socket.on('promotion', (details) => {
 
     let square = document.getElementsByClassName(details.square)[0];
     if (square.childElementCount > 0) {
-        
+
         let target = square.children[0];
-        target.className = 'pieza '+details.piece;
+        target.className = 'pieza ' + details.piece;
         target.src = game.getImgName(details.piece);
         game.currentSquare = false;
     }
 
     let otherSquare = document.getElementsByClassName(details.square)[1];
     if (otherSquare.childElementCount > 0) {
-        
+
         let target = otherSquare.children[0];
-        target.className = 'pieza '+details.piece;
+        target.className = 'pieza ' + details.piece;
         target.src = game.getImgName(details.piece);
         game.currentPiece = false;
     }
 
 });
 
-game.socket.on('enPassant', (details)=>{
+game.socket.on('enPassant', (details) => {
 
     let square = document.getElementsByClassName(details.square)[0];
 
     if (square.childElementCount > 0) {
-        
+
         let target = square.children[0];
         square.removeChild(target);
     }
@@ -473,7 +578,7 @@ game.socket.on('enPassant', (details)=>{
     let otherSquare = document.getElementsByClassName(details.square)[1];
 
     if (otherSquare.childElementCount > 0) {
-        
+
         let target = otherSquare.children[0];
         otherSquare.removeChild(target);
     }
@@ -481,37 +586,37 @@ game.socket.on('enPassant', (details)=>{
 
 });
 
-game.socket.on('castle', (details)=>{
+game.socket.on('castle', (details) => {
 
-    if(details.square == 'h1'){
+    if (details.square == 'h1') {
         //white short castle
 
-        game.makeMove({from: 'e1', to: 'g1'});
-        game.makeMove({from: 'h1', to: 'f1'});
+        game.makeMove({ from: 'e1', to: 'g1' });
+        game.makeMove({ from: 'h1', to: 'f1' });
 
     }
 
-    if(details.square == 'a1'){
+    if (details.square == 'a1') {
         //white long castle
-        
-        game.makeMove({from: 'e1', to: 'c1'});
-        game.makeMove({from: 'a1', to: 'd1'});
+
+        game.makeMove({ from: 'e1', to: 'c1' });
+        game.makeMove({ from: 'a1', to: 'd1' });
 
     }
 
-    if(details.square == 'h8'){
+    if (details.square == 'h8') {
         //black short castle
 
-        game.makeMove({from: 'e8', to: 'g8'});
-        game.makeMove({from: 'h8', to: 'f8'});
+        game.makeMove({ from: 'e8', to: 'g8' });
+        game.makeMove({ from: 'h8', to: 'f8' });
 
     }
 
-    if(details.square == 'a8'){
+    if (details.square == 'a8') {
         //white long castle
-        
-        game.makeMove({from: 'e8', to: 'c8'});
-        game.makeMove({from: 'a8', to: 'd8'});
+
+        game.makeMove({ from: 'e8', to: 'c8' });
+        game.makeMove({ from: 'a8', to: 'd8' });
 
     }
 
@@ -526,13 +631,13 @@ game.socket.on('gameover', (details) => {
     let closeButton = document.getElementById('close');
     let newMatchButton = document.getElementById('newmatch');
 
-    closeButton.addEventListener('click',(e)=>{
+    closeButton.addEventListener('click', (e) => {
 
         popup.style.display = 'none';
 
     });
 
-    newMatchButton.addEventListener('click',(e)=>{
+    newMatchButton.addEventListener('click', (e) => {
 
         location.reload();
 
@@ -540,11 +645,11 @@ game.socket.on('gameover', (details) => {
 
     let title = document.getElementById('wintitle');
 
-    if(details.winner == game.color){
+    if (details.winner == game.color) {
 
         title.innerHTML = 'You win!';
 
-    }else{
+    } else {
 
         title.innerHTML = 'You lose!';
 
@@ -552,13 +657,26 @@ game.socket.on('gameover', (details) => {
 
     let reason = document.getElementById('winreason');
 
-    if(details.reason == 'checkmate'){
-
-        reason.innerHTML = 'By checkmate';
-
-    }
+    reason.innerHTML = 'By '+details.reason;
 
     game.deactivateBoard();
+
+});
+
+game.socket.on('drawRequest',()=>{
+
+    const acceptDrawButton = document.getElementById('draw');
+
+    acceptDrawButton.classList.add('acceptDraw');
+
+    acceptDrawButton.innerHTML = 'Accept draw';
+
+    const bubble = document.getElementById('confirmDraw');
+
+    const text = bubble.firstElementChild;
+
+    text.innerHTML = 'Accept the draw offer?';
+
 
 });
 
@@ -570,13 +688,13 @@ game.socket.on('draw', (details) => {
     let closeButton = document.getElementById('close');
     let newMatchButton = document.getElementById('newmatch');
 
-    closeButton.addEventListener('click',(e)=>{
+    closeButton.addEventListener('click', (e) => {
 
         popup.style.display = 'none';
 
     });
 
-    newMatchButton.addEventListener('click',(e)=>{
+    newMatchButton.addEventListener('click', (e) => {
 
         location.reload();
 
@@ -594,7 +712,7 @@ game.socket.on('draw', (details) => {
 
 });
 
-game.deactivateBoard = function(){
+game.deactivateBoard = function () {
 
     pieces.forEach(piece => {
 
