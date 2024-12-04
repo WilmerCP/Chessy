@@ -9,11 +9,13 @@ logo.addEventListener('click',(e)=>{
 
 let playButton = document.getElementById('random_match_button');
 
+let textField = document.getElementById('name');
+
 playButton.addEventListener('click',(e)=>{
 
     e.preventDefault();
 
-    let name = document.getElementById('name').value;
+    let name = textField.value;
 
     localStorage.setItem('username',name)
 
@@ -24,3 +26,10 @@ playButton.addEventListener('click',(e)=>{
     }
 
 });
+
+textField.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault(); 
+      playButton.click();         // Trigger the button click programmatically
+    }
+  });

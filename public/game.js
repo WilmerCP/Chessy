@@ -744,6 +744,7 @@ game.socket.on('gameover', (details) => {
     game.deactivateBoard();
     game.drawButton.removeEventListener('click',bringDrawConfirmation);
     game.resignButton.removeEventListener('click',bringResignConfirmation);
+    clearInterval(game.timer);
 
 });
 
