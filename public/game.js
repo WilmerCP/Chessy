@@ -30,9 +30,17 @@ if (typeof (username) == 'string') {
 game.drawButton = document.getElementById('draw');
 game.resignButton = document.getElementById('resign');
 
+game.playerTimer = document.getElementById('time-player');
+game.opponentTimer = document.getElementById('time-opponent');
+game.timer = null;
+game.lastUpdate = null;
+game.turn = 'white';
+
 game.socket.on('startGame', (data) => {
 
     game.started = true;
+
+    document.getElementById('waitingForMatch').style.display = "none";
 
     document.getElementById('opponent_name').innerHTML = data.opponent;
 
@@ -50,6 +58,10 @@ game.socket.on('startGame', (data) => {
     game.drawButton.addEventListener('click', bringDrawConfirmation);
     game.resignButton.addEventListener('click', bringResignConfirmation);
 
+    game.timewhite = 1000 * 60 * 5;
+    game.timeblack = 1000 * 60 * 5;
+
+    game.setTimer('white',data.startTime);
 
 });
 
@@ -373,6 +385,70 @@ game.resetPiece = function (piece) {
 
 }
 
+game.setTimer = function(color,startTime){
+
+    let previous = color == "white" ? "black" : "white";
+
+
+    if(game.timer !== null){
+
+        clearInterval(game.timer);
+
+        game['time'+previous] -= (startTime - game.lastUpdate);
+
+        let previousSeconds = game['time'+previous]/1000;
+
+        let previousMinutes = Math.floor(previousSeconds / 60);
+
+        previousSeconds = Math.floor(previousSeconds % 60);
+
+        previousSeconds = previousSeconds >= 10 ? previousSeconds : '0'+previousSeconds;
+
+        let tag = previous == game.color ? game.playerTimer : game.opponentTimer;
+
+        tag.innerHTML = previousMinutes+":"+previousSeconds;
+
+    }
+
+    let tag = color == game.color ? game.playerTimer : game.opponentTimer;
+
+    let remaining = game['time'+color];
+
+    let seconds = remaining/1000;
+
+    let minutes = Math.floor(seconds / 60);
+
+    seconds = Math.floor(seconds % 60);
+
+    seconds = seconds >= 10 ? seconds : '0'+seconds;
+
+    tag.innerHTML = minutes+":"+seconds;
+
+    game.timer = setInterval(()=>{
+
+        remaining -= 1000;
+
+        if (remaining <= 0) {
+            clearInterval(game.timer);
+            game.timer = null;
+
+            remaining = 0;
+        }
+
+        seconds = Math.floor(remaining / 1000);
+        minutes = Math.floor(seconds / 60);
+        seconds = Math.floor(seconds % 60);
+
+        seconds = seconds >= 10 ? seconds : '0'+seconds;
+
+        tag.innerHTML = minutes+":"+seconds;
+
+    },1000);
+
+    game.lastUpdate = startTime;
+
+}
+
 game.validateMove = function (move) {
 
     let pieceName = game.currentPiece.classList[1];
@@ -497,6 +573,10 @@ game.socket.on('moveAccepted', (move) => {
 
     bubble.style.display = "none";
 
+    game.changeTurn();
+
+    game.setTimer(game.turn,move.startTime);
+
 });
 
 game.getImgName = function (piece) {
@@ -620,6 +700,8 @@ game.socket.on('castle', (details) => {
 
     }
 
+    game.setTimer(game.turn,details.startTime);
+
 
 });
 
@@ -660,6 +742,8 @@ game.socket.on('gameover', (details) => {
     reason.innerHTML = 'By '+details.reason;
 
     game.deactivateBoard();
+    game.drawButton.removeEventListener('click',bringDrawConfirmation);
+    game.resignButton.removeEventListener('click',bringResignConfirmation);
 
 });
 
@@ -710,6 +794,9 @@ game.socket.on('draw', (details) => {
 
     game.deactivateBoard();
 
+    game.drawButton.removeEventListener('click',bringDrawConfirmation);
+    game.resignButton.removeEventListener('click',bringResignConfirmation);
+
 });
 
 game.deactivateBoard = function () {
@@ -721,5 +808,19 @@ game.deactivateBoard = function () {
 
     });
 
+
+}
+
+game.changeTurn = function(){
+
+    if(game.turn == 'white'){
+
+        game.turn = 'black';
+
+    }else{
+
+        game.turn = 'white';
+
+    }
 
 }
