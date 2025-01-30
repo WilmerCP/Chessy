@@ -5,6 +5,21 @@ game.started = false;
 let logo = document.getElementById('apptitle');
 logo.style.cursor = "pointer";
 
+game.sounds = {};
+
+game.sounds.move = new Audio('/public/sound/move-self.mp3');
+game.sounds.castle = new Audio('/public/sound/castle.mp3');
+
+document.addEventListener('click', initAudio, { once: true });
+
+function initAudio() {
+    
+    game.sounds.move = new Audio('/public/sound/move-self.mp3');
+    game.sounds.castle = new Audio('/public/sound/castle.mp3');
+
+}
+
+
 game.promotionWhite = document.getElementById('promotionWhite');
 game.promotionBlack = document.getElementById('promotionBlack');
 
@@ -374,6 +389,8 @@ game.makeMove = function (move) {
     otherPiece.style.left = '0px';
     otherPiece.style.right = '0px';
 
+    game.sounds.move.play();
+
 }
 
 game.resetPiece = function (piece) {
@@ -701,6 +718,8 @@ game.socket.on('castle', (details) => {
     }
 
     game.setTimer(game.turn,details.startTime);
+
+    game.sounds.castle.play();
 
 
 });

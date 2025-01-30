@@ -42,6 +42,7 @@ server.serverHttp = http.createServer((req,res)=>{
 
         selectedHandler = datos.url.pathname.includes('public') ? server.router.public : selectedHandler;
         selectedHandler = datos.url.pathname.includes('public/img') ? server.router.img : selectedHandler;
+        selectedHandler = datos.url.pathname.includes('public/sound') ? server.router.sound : selectedHandler;
 
         selectedHandler(datos,(code,payload,type)=>{
 
@@ -83,6 +84,12 @@ server.serverHttp = http.createServer((req,res)=>{
                 res.setHeader('Content-Type', 'image/svg+xml');         
             }
 
+            if(contentType == 'mp3'){
+
+                payloadString = typeof (payload) !== 'undefined' ? payload : '';
+                res.setHeader('Content-Type', 'audio/mpeg');         
+            }
+
             if(contentType == 'html'){
 
                 payloadString = typeof (payload) !== 'undefined' ? payload : '';
@@ -117,6 +124,7 @@ server.router = {
     'notFound': handlers.notFound,
     'public': handlers.public,
     'img': handlers.img,
+    'sound': handlers.sound,
     '/favicon.ico':handlers.favicon,
     '/game': handlers.game,
     '/api/newgame': handlers.newGame
