@@ -501,7 +501,6 @@ game.validateMove = function (move) {
             let name = e.target.classList[0];
             move.promotion = name;
             game.socket.emit('move', move);
-            console.log(move);
 
             e.target.parentElement.parentElement.style.display = 'none';
 
@@ -813,6 +812,8 @@ game.socket.on('draw', (details) => {
     reason.innerHTML = 'By ' + details.reason;
 
     game.deactivateBoard();
+
+    clearInterval(game.timer);
 
     game.drawButton.removeEventListener('click',bringDrawConfirmation);
     game.resignButton.removeEventListener('click',bringResignConfirmation);

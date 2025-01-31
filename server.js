@@ -133,9 +133,11 @@ server.router = {
 
 server.io = new Server(server.serverHttp);
 
-server.serverHttp.listen(3000,()=>{
+let port = typeof(process.env.PORT) != 'undefined' ? process.env.PORT : 3000; 
 
-    console.log('\x1b[34m%s\x1b[0m','The server is listening on port 3000');
+server.serverHttp.listen(port,()=>{
+
+    console.log('\x1b[34m%s\x1b[0m','The server is listening on port '+port);
 
 });
 
